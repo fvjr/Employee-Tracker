@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const express = require('express');
+const cTable = require('console.table');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -41,7 +42,7 @@ const mainMenuDisplay = () => {
     if (userChoice.mainMenuPrompt === `View all departments`) {
       db.query('SELECT * FROM department', function (err, results)
       {
-        console.log(results);
+        console.table(results);
       })
     }
   })
