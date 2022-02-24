@@ -32,7 +32,7 @@ const mainMenuDisplay = () => {
       } else if (userChoice.mainMenuPrompt === `View all roles`) {
         const sql = `Select `
         console.table(`viewing roles`)
-        db.query('SELECT * from role', function (err, results) {
+        db.query('SELECT role.title AS Role_Title, role.id AS Role_id, department.name AS Department, role.salary AS Salary FROM role join department on role.department_id = department.id;', function (err, results) {
           //NEED A JOIN FOR THIS?
           console.table(results);
           mainMenuDisplay();
@@ -49,7 +49,6 @@ const mainMenuDisplay = () => {
           .then((departmentData) => {
             const sql = `INSERT INTO department (name) VALUES (?)`
             const params = departmentData.departmentName;
-
             db.query(sql, params, function (err, result) {
               mainMenuDisplay();
             })
