@@ -58,10 +58,36 @@ const rolePrompts = [
     type: 'input',
     name: 'department',
     message: 'What department does the role belong to?',
-    // choices: [`${db.query('SELECT * FROM department')}`]
-
+    //i want to return DB select * department names from this choices aray
+    // choices: []
   }
 ]
+
+const employeePrompts = [
+  {
+    type: 'input',
+    name: 'firstName',
+    message: "What is the new employee's first name?",
+  },
+  {
+    type: 'input',
+    name: 'lastName',
+    message: "What is the new employee's last name?",
+  },
+  //i want to make role a list
+  // {
+  //   type: 'input',
+  //   name: 'role',
+  //   message: "What is the new employee's role?",
+  // },
+  // //i want to make manager a list
+  // {
+  //   type: 'input',
+  //   name: 'manager',
+  //   message: "Who is the new employee's manager?",
+  // },
+]
+
 const mainMenuDisplay = () => {
   inquirer.prompt(mainMenuPrompts)
     .then((userChoice) => {
@@ -106,14 +132,24 @@ const mainMenuDisplay = () => {
             db.query(sql, [params], function (err, result) {
               if (err) {
                 console.log(err)
-              
-            }
-            mainMenuDisplay();
-          })
+              }
+              mainMenuDisplay();
+            })
           }
           )
-      }
-    })
+      } else if (userChoice.mainMenuPrompt === `Add an employee`) {
+        inquirer.prompt(employeePrompts)
+        .then((employeeData) => {
+          const sql = `INSERT INTO employee (first_name, last_name) VALUES (?)`
+          const params = [employeeData.firstName, employeeData.lastName]
+          db.query(sql, [params], function (err, result) {
+            if (err) {
+              console.log(err)
+            }
+            mainMenuDisplay();
+        })
+      })
+    }})
 }
 
 
