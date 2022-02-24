@@ -30,15 +30,12 @@
 -- FROM role
 -- join department on role.department_id = department.id;
 
-SELECT employee.id AS Employee_ID, employee.first_name AS First_Name, employee.last_name AS Last_Name, role.title AS Role, role.salary AS Salary, department.name as Department
-
-
--- FROM employee
--- join role on employee.role_id  = role.id,
--- FROM role_id
--- join department on role.department_id = department.name;
+SELECT employee.id AS Employee_ID, employee.first_name AS First_Name, employee.last_name AS Last_Name, role.title AS Role, role.salary AS Salary, department.name as Department, employee.manager_id AS Manager
 
 FROM role
 join employee on role.id = employee.role_id
-join department on role.department_id = department.id;
+join department on role.department_id = department.id
+join employee on employee.manager_id = employee.first_name;
+
+
 
