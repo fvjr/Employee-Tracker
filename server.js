@@ -101,13 +101,15 @@ const mainMenuDisplay = () => {
       } else if (userChoice.mainMenuPrompt === `Add a role`) {
         inquirer.prompt(rolePrompts)
           .then((roleData) => {
-            const sql = `INSERT INTO role (title) VALUES (?)`
-            const params1 = roleData.name;
-            const params2 = roleData.salary;
-            db.query(sql, params1, function (err, result) {
-              mainMenuDisplay();
+            const sql = `INSERT INTO role (title, salary) VALUES (?)`
+            const params = [roleData.name, roleData.salary]
+            db.query(sql, [params], function (err, result) {
+              if (err) {
+                console.log(err)
+              
             }
-            )
+            mainMenuDisplay();
+          })
           }
           )
       }
