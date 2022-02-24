@@ -12,7 +12,7 @@ app.use(express.json());
 const db = mysql.createConnection({
 host: 'localhost',
 user: 'root',
-password: '',
+password: 'Toki2661()',
 database: 'employees_db'
 },
 console.log('Connected to employees_db database.')
@@ -43,12 +43,43 @@ const mainMenuDisplay = () => {
       db.query('SELECT * FROM department', function (err, results)
       {
         console.table(results);
+        mainMenuDisplay();
+      }
+      )
+    } else if (userChoice.mainMenuPrompt === `View all roles`) {
+      const sql = `Select `
+      console.table(`viewing roles`)
+      db.query('SELECT * from role', function (err, results){
+        //NEED A JOIN FOR THIS?
+        console.table(results);
+        mainMenuDisplay();
+      }
+      )
+    } else if (userChoice.mainMenuPrompt === `View all employees`) {
+      console.table(`Viewing employees`);
+      db.query(`Select * from employee`, function (err, results) {
+        console.table(results);
+        mainMenuDisplay();
       })
     }
   })
 }
 
-mainMenuDisplay();
+
+//employee table needs
+//title, department
+//GET RID OF: role_id
+
+// SELECT role, employee
+// FROM employee
+// JOIN role ON employee.role_id = role.title 
+
+
+
+//start app
+const init = () => mainMenuDisplay();
+
+init();
 
 //testing
 // db.query('SELECT * FROM role', function (err, results)
