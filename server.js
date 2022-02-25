@@ -4,14 +4,13 @@ const mysql = require('mysql2');
 const cTable = require('console.table');
 // const app = express();
 // const PORT = process.env.PORT || 3001;
-const { mainMenuPrompts, departmentPrompts, rolePrompts, employeePrompts } = require('./lib/prompts')
-
-const departmentsArray = [];
+const { mainMenuPrompts, departmentPrompts, employeePrompts } = require('./lib/prompts')
 
 //Express middleware
 // app.use(express.urlencoded({ extended: true }));
 // app.use(express.json());
 
+//connect to database
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -55,23 +54,29 @@ const mainMenuDisplay = () => {
             const params = departmentData.departmentName;
             db.query(sql, params, function (err, results) {
               mainMenuDisplay();
-              console.table(results);
+              console.log(`${departmentData.departmentName} department created.`);
             })
           })
       } else if (userChoice.mainMenuPrompt === `Add a role`) {
-        inquirer.prompt(rolePrompts)
-          .then((roleData) => {
-            const sql = `INSERT INTO role (title, salary) VALUES (?)`
-            const params = [roleData.name, roleData.salary,]
-            db.query(sql, [params], function (err, results) {
-              if (err) {
-                console.log(err)
-              }
-              console.table(results);
-              mainMenuDisplay();
-            })
-          }
-          )
+addRole();
+// const departments = await db.promise().query('SELECT * FROM department');
+// console.log(departments)
+
+
+
+        // inquirer.prompt(rolePrompts)
+        //   .then((roleData) => {
+        //     const sql = `INSERT INTO role (title, salary) VALUES (?)`
+        //     const params = [roleData.name, roleData.salary,]
+        //     db.query(sql, [params], function (err, results) {
+        //       if (err) {
+        //         console.log(err)
+        //       }
+        //       console.table(results);
+        //       mainMenuDisplay();
+        //     })
+        //   }
+        //   )
       } else if (userChoice.mainMenuPrompt === `Add an employee`) {
         inquirer.prompt(employeePrompts)
           .then((employeeData) => {
@@ -88,18 +93,57 @@ const mainMenuDisplay = () => {
     })
 }
 
+const addRole = async () => {
+  const [departments] = await db.promise().query('SELECT * FROM department');
+
+  const departmentArray = departments.map(({id, name}) => ({
+    name:name, value:id
+  }))
+        inquirer.prompt([
+          {
+            type: 'input',
+            name: 'name',
+            message: "What is the name of the new role?",
+          },
+          {
+            type: 'number',
+            name: 'salary',
+            message: "What is the salary for this role?"
+          },
+          {
+            type: 'list',
+            name: 'department',
+            message: 'What department does the role belong to?',
+            choices: departmentArray
+
+          }])
+          .then((roleData) => {
+            const sql = `INSERT INTO role (title, salary, department_id) VALUES (?)`
+            const params = [roleData.name, roleData.salary, roleData.department]
+            db.query(sql, [params], function (err, results) {
+              if (err) {
+                console.log(err)
+              }
+              console.table(results);
+              mainMenuDisplay();
+            })
+          }
+          )
+}
+
 //start app
 const init = () => {
-  db.query('SELECT * FROM department', function (err, results) {
-    for (let i = 0; i < results.length; i++) {
-      // console.log(results[i].name)
-      departmentsArray.push(results[i].name)
-      // console.log(departmentsArray)
-    }
-  })
+  // db.query('SELECT * FROM department', function (err, results) {
+  //   for (let i = 0; i < results.length; i++) {
+  //     // console.log(results[i].name)
+  //     departmentsArray.push(results[i].name)
+  //     // console.log(departmentsArray)
+  //   }
+  // })
   mainMenuDisplay();
 }
 
+//call init function to start app
 init();
 
 // app.use((req, res) => {
@@ -110,6 +154,3 @@ init();
 //   console.log(`Server running on port ${PORT}`)
 // });
 
-module.exports = {
-  departmentsArray
-}

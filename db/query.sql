@@ -30,11 +30,19 @@
 -- FROM role
 -- join department on role.department_id = department.id;
 
-SELECT employee.id AS Employee_ID, employee.first_name AS First_Name, employee.last_name AS Last_Name, role.title AS Role, role.salary AS Salary, department.name as Department, employee.manager_id AS Manager
+-- SELECT employee.id AS Employee_ID, employee.first_name AS First_Name, employee.last_name AS Last_Name, role.title AS Role, role.salary AS Salary, department.name as Department, employee.manager_id AS Manager
 
-FROM role
-join employee on role.id = employee.role_id
-join department on role.department_id = department.id
+-- FROM role
+-- join employee on role.id = employee.role_id
+-- join department on role.department_id = department.id
+
+SELECT employee.id AS Employee_ID, CONCAT(employee.first_name, " ", employee.last_name) AS Name, role.title AS Role, role.salary AS Salary, department.name as Department, manager.first_name AS Manager
+
+FROM employee
+LEFT JOIN role ON employee.role_id = role.id
+LEFT JOIN department ON role.department_id = department.id
+LEFT JOIN employee manager ON manager.id = employee.manager_id;
+
 
 
 
