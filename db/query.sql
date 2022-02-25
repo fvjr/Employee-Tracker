@@ -35,7 +35,6 @@ SELECT employee.id AS Employee_ID, employee.first_name AS First_Name, employee.l
 FROM role
 join employee on role.id = employee.role_id
 join department on role.department_id = department.id
-join employee on employee.manager_id = employee.first_name;
 
 
 
