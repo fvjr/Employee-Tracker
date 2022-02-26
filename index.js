@@ -7,12 +7,13 @@ const { mainMenuPrompts, departmentPrompts, } = require('./lib/prompts')
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '',
+  password: 'Toki2661()',
   database: 'employees_db'
 },
   console.log('Connected to employees_db database.')
 );
 
+//get user input via prompts and display requested information
 const mainMenuDisplay = () => {
   inquirer.prompt(mainMenuPrompts)
     .then((userChoice) => {
@@ -61,7 +62,7 @@ const mainMenuDisplay = () => {
         viewByManager();
       }
     })
-}
+};
 
 //add new role/job 
 const addRole = async () => {
@@ -184,6 +185,7 @@ const updateRole = async () => {
     })
 };
 
+//function to update employee's manager
 const updateManager = async () => {
   const [employee] = await db.promise().query('SELECT * FROM employee');
 
@@ -219,12 +221,11 @@ const updateManager = async () => {
 
 };
 
+//function to view employees by manager
 const viewByManager = async () => {
   const [employee] = await db.promise().query('SELECT * FROM employee');
 
-  const managerArray = employee.map(({ id, first_name }) => ({ name: first_name, value: id }))
-
-  // const employeeArray = employee.map(({ id, first_name }) => ({ name: first_name, value: id }));
+  const managerArray = employee.map(({ id, first_name }) => ({ name: first_name, value: id }));
 
   inquirer.prompt([
     {
@@ -242,12 +243,13 @@ const viewByManager = async () => {
         if (err) {
           console.log(err)
         }
-        console.table(result)
+        else if (result.length === 0 ) {
+          console.log(`Selected employee is not a manager. Please make another selection.`)
+        }
         mainMenuDisplay();
       })
     })
 };
-
 
 //function to start app
 const init = () => {
