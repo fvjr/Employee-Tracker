@@ -7,7 +7,7 @@ const { mainMenuPrompts, departmentPrompts, } = require('./lib/prompts')
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Toki2661()',
+  password: '',
   database: 'employees_db'
 },
   console.log('Connected to employees_db database.')
@@ -246,6 +246,7 @@ const viewByManager = async () => {
         else if (result.length === 0 ) {
           console.log(`Selected employee is not a manager. Please make another selection.`)
         }
+        console.table(result)
         mainMenuDisplay();
       })
     })
