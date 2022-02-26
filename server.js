@@ -72,7 +72,9 @@ const mainMenuDisplay = () => {
         //   )
       } else if (userChoice.mainMenuPrompt === `Add an employee`) {
         addEmployee()
-            }})}
+      }
+    })
+}
 
 
 const addRole = async () => {
@@ -113,42 +115,48 @@ const addRole = async () => {
 
 const addEmployee = async () => {
   const [employee] = await db.promise().query('SELECT * FROM employee');
+  const [role] = await db.promise().query('SELECT * FROM role');
 
-  const managerArray = employee.map(({id, first_name}) => ({name:first_name, value:id}))
+  const roleArray = role.map(({ id, title }) => (
+    { name: title, value: id }
+  ))
+
+  const managerArray = employee.map(({ id, first_name }) => ({ name: first_name, value: id }))
   inquirer.prompt([
-      {
-        type: 'input',
-        name: 'firstName',
-        message: "What is the new employee's first name?",
-      },
-      {
-        type: 'input',
-        name: 'lastName',
-        message: "What is the new employee's last name?",
-      },
-      {
-        type: 'input',
-        name: 'role',
-        message: "What is the new employee's role_id?",
-      },
-      {
-        type: 'list',
-        name: 'manager',
-        message: "Who is the new employee's manager?",
-        choices: managerArray
-      },
-    ]
+    {
+      type: 'input',
+      name: 'firstName',
+      message: "What is the new employee's first name?",
+    },
+    {
+      type: 'input',
+      name: 'lastName',
+      message: "What is the new employee's last name?",
+    },
+    {
+      type: 'list',
+      name: 'role',
+      message: "What is the new employee's role_id?",
+      choices: roleArray
+    },
+    {
+      type: 'list',
+      name: 'manager',
+      message: "Who is the new employee's manager?",
+      choices: managerArray
+    },
+  ]
   )
-  .then((employeeData) => {
-    const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?)`
-    const params = [employeeData.firstName, employeeData.lastName, employeeData.role, employeeData.manager ]
-    db.query(sql, [params], function (err, result) {
-      if (err) {
-        console.log(err)
-      }
-      mainMenuDisplay();
+    .then((employeeData) => {
+      const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?)`
+      const params = [employeeData.firstName, employeeData.lastName, employeeData.role, employeeData.manager]
+      db.query(sql, [params], function (err, result) {
+        if (err) {
+          console.log(err)
+        }
+        mainMenuDisplay();
+      })
     })
-  })
 }
 
 //function to start app
