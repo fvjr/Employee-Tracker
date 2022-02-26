@@ -57,6 +57,8 @@ const mainMenuDisplay = () => {
         updateRole();
       } else if (userChoice.mainMenuPrompt === `Update an employee's manager`){
         updateManager();
+      } else if (userChoice.mainMenuPrompt === `View a manager's team`) {
+        viewByManager();
       }
     })
 }
@@ -142,7 +144,7 @@ const addEmployee = async () => {
         mainMenuDisplay();
       })
     })
-}
+};
 
 //updates employee role
 const updateRole = async () => {
@@ -180,7 +182,7 @@ const updateRole = async () => {
         mainMenuDisplay();
       })
     })
-}
+};
 
 const updateManager = async () => {
   const [employee] = await db.promise().query('SELECT * FROM employee');
@@ -215,7 +217,36 @@ const updateManager = async () => {
       })
     })
 
-}
+};
+
+const viewByManager = async () => {
+  const [employee] = await db.promise().query('SELECT * FROM employee');
+
+  const managerArray = employee.map(({ id, first_name }) => ({ name: first_name, value: id }))
+
+  // const employeeArray = employee.map(({ id, first_name }) => ({ name: first_name, value: id }));
+
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'manager',
+      message: "Which manager's team would you like to view?",
+      choices: managerArray
+    },
+  ]
+  )
+    .then((employeeData) => {
+      const sql = `SELECT first_name AS Employee from employee WHERE manager_id = ?;`
+      const params = [employeeData.manager];
+      db.query(sql, params, function (err, result) {
+        if (err) {
+          console.log(err)
+        }
+        console.table(result)
+        mainMenuDisplay();
+      })
+    })
+};
 
 
 //function to start app
