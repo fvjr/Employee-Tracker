@@ -1,14 +1,7 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
-// const express = require('express');
 const cTable = require('console.table');
-// const app = express();
-// const PORT = process.env.PORT || 3001;
-const { mainMenuPrompts, departmentPrompts, employeePrompts } = require('./lib/prompts')
-
-//Express middleware
-// app.use(express.urlencoded({ extended: true }));
-// app.use(express.json());
+const { mainMenuPrompts, departmentPrompts, } = require('./lib/prompts')
 
 //connect to database
 const db = mysql.createConnection({
@@ -39,11 +32,11 @@ const mainMenuDisplay = () => {
         }
         )
       } else if (userChoice.mainMenuPrompt === `View all employees`) {
-        console.table(`Viewing employees`);
-        db.query(`SELECT employee.id AS Employee_ID, employee.first_name AS First_Name, employee.last_name AS Last_Name, role.title AS Role,  department.name as Department, role.salary AS Salary, employee.manager_id AS Manager
-        FROM role
-        join employee on role.id = employee.role_id
-        join department on role.department_id = department.id`, function (err, results) {
+        db.query(`SELECT employee.id AS Employee_ID, CONCAT(employee.first_name, " ", employee.last_name) AS Name, role.title AS Role, role.salary AS Salary, department.name as Department, manager.first_name AS Manager
+        FROM employee
+        LEFT JOIN role ON employee.role_id = role.id
+        LEFT JOIN department ON role.department_id = department.id
+        LEFT JOIN employee manager ON manager.id = employee.manager_id`, function (err, results) {
           console.table(results);
           mainMenuDisplay();
         })
@@ -58,9 +51,9 @@ const mainMenuDisplay = () => {
             })
           })
       } else if (userChoice.mainMenuPrompt === `Add a role`) {
-addRole();
-// const departments = await db.promise().query('SELECT * FROM department');
-// console.log(departments)
+        addRole();
+        // const departments = await db.promise().query('SELECT * FROM department');
+        // console.log(departments)
 
 
 
@@ -78,79 +71,91 @@ addRole();
         //   }
         //   )
       } else if (userChoice.mainMenuPrompt === `Add an employee`) {
-        inquirer.prompt(employeePrompts)
-          .then((employeeData) => {
-            const sql = `INSERT INTO employee (first_name, last_name) VALUES (?)`
-            const params = [employeeData.firstName, employeeData.lastName]
-            db.query(sql, [params], function (err, result) {
-              if (err) {
-                console.log(err)
-              }
-              mainMenuDisplay();
-            })
-          })
-      }
-    })
-}
+        addEmployee()
+            }})}
+
 
 const addRole = async () => {
   const [departments] = await db.promise().query('SELECT * FROM department');
 
-  const departmentArray = departments.map(({id, name}) => ({
-    name:name, value:id
+  const departmentArray = departments.map(({ id, name }) => ({
+    name: name, value: id
   }))
-        inquirer.prompt([
-          {
-            type: 'input',
-            name: 'name',
-            message: "What is the name of the new role?",
-          },
-          {
-            type: 'number',
-            name: 'salary',
-            message: "What is the salary for this role?"
-          },
-          {
-            type: 'list',
-            name: 'department',
-            message: 'What department does the role belong to?',
-            choices: departmentArray
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: "What is the name of the new role?",
+    },
+    {
+      type: 'number',
+      name: 'salary',
+      message: "What is the salary for this role?"
+    },
+    {
+      type: 'list',
+      name: 'department',
+      message: 'What department does the role belong to?',
+      choices: departmentArray
+    }])
+    .then((roleData) => {
+      const sql = `INSERT INTO role (title, salary, department_id) VALUES (?)`
+      const params = [roleData.name, roleData.salary, roleData.department]
+      db.query(sql, [params], function (err, results) {
+        if (err) {
+          console.log(err)
+        }
+        mainMenuDisplay();
+      })
+    }
+    )
+};
 
-          }])
-          .then((roleData) => {
-            const sql = `INSERT INTO role (title, salary, department_id) VALUES (?)`
-            const params = [roleData.name, roleData.salary, roleData.department]
-            db.query(sql, [params], function (err, results) {
-              if (err) {
-                console.log(err)
-              }
-              console.table(results);
-              mainMenuDisplay();
-            })
-          }
-          )
+const addEmployee = async () => {
+  const [employee] = await db.promise().query('SELECT * FROM employee');
+
+  const managerArray = employee.map(({id, first_name}) => ({name:first_name, value:id}))
+  inquirer.prompt([
+      {
+        type: 'input',
+        name: 'firstName',
+        message: "What is the new employee's first name?",
+      },
+      {
+        type: 'input',
+        name: 'lastName',
+        message: "What is the new employee's last name?",
+      },
+      {
+        type: 'input',
+        name: 'role',
+        message: "What is the new employee's role_id?",
+      },
+      {
+        type: 'list',
+        name: 'manager',
+        message: "Who is the new employee's manager?",
+        choices: managerArray
+      },
+    ]
+  )
+  .then((employeeData) => {
+    const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?)`
+    const params = [employeeData.firstName, employeeData.lastName, employeeData.role, employeeData.manager ]
+    db.query(sql, [params], function (err, result) {
+      if (err) {
+        console.log(err)
+      }
+      mainMenuDisplay();
+    })
+  })
 }
 
-//start app
+//function to start app
 const init = () => {
-  // db.query('SELECT * FROM department', function (err, results) {
-  //   for (let i = 0; i < results.length; i++) {
-  //     // console.log(results[i].name)
-  //     departmentsArray.push(results[i].name)
-  //     // console.log(departmentsArray)
-  //   }
-  // })
   mainMenuDisplay();
-}
+};
 
 //call init function to start app
 init();
-
-// app.use((req, res) => {
-//   res.status(404).end();
-// });
-
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`)
-// });
 
