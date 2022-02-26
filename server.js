@@ -16,7 +16,6 @@ const db = mysql.createConnection({
 const mainMenuDisplay = () => {
   inquirer.prompt(mainMenuPrompts)
     .then((userChoice) => {
-      // console.log(userChoice.mainMenuPrompt)
       if (userChoice.mainMenuPrompt === `View all departments`) {
         db.query('SELECT * FROM department', function (err, results) {
           console.table(results);
@@ -52,30 +51,11 @@ const mainMenuDisplay = () => {
           })
       } else if (userChoice.mainMenuPrompt === `Add a role`) {
         addRole();
-        // const departments = await db.promise().query('SELECT * FROM department');
-        // console.log(departments)
-
-
-
-        // inquirer.prompt(rolePrompts)
-        //   .then((roleData) => {
-        //     const sql = `INSERT INTO role (title, salary) VALUES (?)`
-        //     const params = [roleData.name, roleData.salary,]
-        //     db.query(sql, [params], function (err, results) {
-        //       if (err) {
-        //         console.log(err)
-        //       }
-        //       console.table(results);
-        //       mainMenuDisplay();
-        //     })
-        //   }
-        //   )
       } else if (userChoice.mainMenuPrompt === `Add an employee`) {
-        addEmployee()
+        addEmployee();
       }
     })
 }
-
 
 const addRole = async () => {
   const [departments] = await db.promise().query('SELECT * FROM department');
@@ -136,7 +116,7 @@ const addEmployee = async () => {
     {
       type: 'list',
       name: 'role',
-      message: "What is the new employee's role_id?",
+      message: "What is the new employee's role?",
       choices: roleArray
     },
     {
@@ -159,6 +139,10 @@ const addEmployee = async () => {
     })
 }
 
+const updateRole = async () => {
+
+}
+
 //function to start app
 const init = () => {
   mainMenuDisplay();
@@ -166,4 +150,3 @@ const init = () => {
 
 //call init function to start app
 init();
-
