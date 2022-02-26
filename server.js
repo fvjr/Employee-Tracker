@@ -53,6 +53,8 @@ const mainMenuDisplay = () => {
         addRole();
       } else if (userChoice.mainMenuPrompt === `Add an employee`) {
         addEmployee();
+      } else if (userChoice.mainMenuPrompt === `Update an employee role`) {
+        updateRole();
       }
     })
 }
@@ -140,8 +142,40 @@ const addEmployee = async () => {
 }
 
 const updateRole = async () => {
+  const [employee] = await db.promise().query('SELECT * FROM employee');
 
-}
+
+  const [role] = await db.promise().query('SELECT * FROM role');
+
+  const roleArray = role.map(({ id, title }) => (
+    { name: title, value: id }
+  ));
+  const employeeArray = employee.map(({ id, first_name }) => ({ name: first_name, value: id }));
+
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'employee',
+      message: "Which employee would you like to update?",
+      choices: employeeArray
+    },
+    {
+      type: 'list',
+      name: 'newRole',
+      message: "What is the employee's new role?",
+      choices: roleArray
+    }
+  ]
+  )
+    .then((employeeData) => {
+      const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+      const params = [employeeData.newRole, employeeData.employee];
+      db.query(sql, params, function (err, result) {
+  if (err) {
+    console.log(err)
+  }
+  mainMenuDisplay();
+      })})}
 
 //function to start app
 const init = () => {
