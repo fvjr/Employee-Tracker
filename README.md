@@ -21,6 +21,7 @@ Clone from my GitHub repo.
 ## Usage
 Instructions and examples for use:
 Clone from my GitHub repo and run the application by entering "node index.js" via the terminal.
+Want to see the application in use? Following this link: "https://drive.google.com/file/d/12BDzwH9aYJAi9b3HdV0bxOF0CgCIlbl7/view"
 
 ![Project mock-up image.](./Assets/screenshot.PNG)
 
